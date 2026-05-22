@@ -1,13 +1,12 @@
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "vimana"
-version = "0.1.0"
+version = "0.2.0"
 description = "Self-Orchestrating AI: Can AI agents autonomously provision, scale, and navigate their own cloud infrastructure?"
 readme = "README.md"
-license = {file = "LICENSE"}
 requires-python = ">=3.11"
 authors = [
     {name = "Mukunda Katta"},
@@ -30,6 +29,10 @@ dependencies = [
     "numpy>=1.26.0",
     "pandas>=2.1.0",
     "matplotlib>=3.8.0",
+    # v0.2.0 agent layer:
+    "token-budget-py>=0.1.0",
+    "agenttrace>=0.1.0",
+    "birddog>=0.2.0",
 ]
 
 [project.optional-dependencies]

@@ -6,3 +6,7 @@ pydantic>=2.5.0
 numpy>=1.26.0
 pandas>=2.1.0
 matplotlib>=3.8.0
+# v0.2.0 agent layer
+token-budget-py>=0.1.0
+agenttrace>=0.1.0
+birddog>=0.2.0

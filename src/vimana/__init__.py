@@ -4,4 +4,4 @@ Can AI agents autonomously provision, scale, and navigate their own
 cloud infrastructure?
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

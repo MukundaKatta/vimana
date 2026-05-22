@@ -115,19 +115,24 @@ class DemandPredictor:
         x = np.arange(len(recent), dtype=float)
         slope = float(np.polyfit(x, recent, 1)[0])
 
-        # Check for cyclicality using autocorrelation
+        # Trend dominates: a strong monotone slope is "rising" or
+        # "falling" regardless of autocorrelation. Autocorr on a near-
+        # linear series naturally has large lagged values that look
+        # cyclic; we only call something cyclic when the slope is
+        # small AND the residual after detrending still autocorrelates.
+        if abs(slope) >= 1.0:
+            return "rising" if slope > 0 else "falling"
+
+        # Check for cyclicality on the detrended residual.
         if len(recent) >= 10:
-            centered = recent - np.mean(recent)
+            trendline = slope * x + float(np.mean(recent) - slope * np.mean(x))
+            residual = recent - trendline
+            centered = residual - np.mean(residual)
             autocorr = np.correlate(centered, centered, mode="full")
-            autocorr = autocorr[len(autocorr) // 2:]
+            autocorr = autocorr[len(autocorr) // 2 :]
             if len(autocorr) > 3:
                 normalized = autocorr / (autocorr[0] + 1e-10)
-                # If there is a secondary peak, it is cyclic
                 if len(normalized) > 5 and any(normalized[3:] > 0.5):
                     return "cyclic"
 
-        if slope > 1.0:
-            return "rising"
-        elif slope < -1.0:
-            return "falling"
         return "stable"

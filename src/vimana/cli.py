@@ -20,7 +20,7 @@ console = Console()
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="vimana")
+@click.version_option(version="0.2.0", prog_name="vimana")
 def cli() -> None:
     """Vimana -- Self-Orchestrating AI Infrastructure Framework.
 
@@ -242,6 +242,81 @@ def report(input_path: str, plots: bool, plot_dir: str) -> None:
 
     if plots:
         generate_plots(result, plot_dir)
+
+
+# ---------------------------------------------------------------------------
+# scale: v0.2.0 auto-scaler agent demo (mock cloud, budget-capped)
+# ---------------------------------------------------------------------------
+
+@cli.command()
+@click.option("--steps", "-s", type=int, default=50, help="Number of agent steps.")
+@click.option("--usd-cap", type=float, default=0.50, help="Hard USD cap for the run.")
+@click.option("--seed", type=int, default=7, help="Random seed (determinism).")
+@click.option("--verbose/--quiet", default=True, help="Print per-step decisions.")
+def scale(steps: int, usd_cap: float, seed: int, verbose: bool) -> None:
+    """Run the v0.2.0 auto-scaler agent against a mock cloud.
+
+    The agent reads simulated metrics every tick, watches for drift,
+    and applies scale_up / scale_down / hold against the mock cloud
+    provisioner. Every decision is budget-capped and tracked.
+    """
+    import random
+
+    import numpy as np
+
+    from vimana.agent.auto_scaler import AutoScalerAgent
+    from vimana.cloud.provisioner import CloudProvisioner
+    from vimana.cloud.scaler import ScalingThresholds
+    from vimana.models import Region, ResourceSpec, ResourceType, SimulationScenario
+    from vimana.simulation import CloudSimulator
+
+    random.seed(seed)
+    np.random.seed(seed)
+
+    scenario = SimulationScenario(
+        name="auto-scaler-cli",
+        total_ticks=steps,
+        base_load=0.3,
+        load_pattern="burst",
+        failure_probability=0.0,
+        initial_resources=[
+            ResourceSpec(
+                resource_type=ResourceType.VM,
+                name="api-vm",
+                vcpus=4,
+                memory_gb=8.0,
+                region=Region.US_EAST_1,
+                replicas=2,
+            ),
+        ],
+    )
+    sim = CloudSimulator(scenario=scenario)
+    sim.initialize()
+    provisioner = CloudProvisioner(simulator=sim)
+    agent = AutoScalerAgent(
+        simulator=sim,
+        provisioner=provisioner,
+        target_resource_id=sim.state.resources[0].id,
+        usd_cap=usd_cap,
+        thresholds=ScalingThresholds(
+            cpu_scale_up=65.0,
+            cpu_scale_down=20.0,
+            memory_scale_down=35.0,
+            cooldown_ticks=3,
+        ),
+        verbose=verbose,
+    )
+    report = agent.run(steps=steps)
+
+    console.print(
+        f"\n[bold cyan]Agent done.[/bold cyan] "
+        f"scale_up={report.scale_up_count} "
+        f"scale_down={report.scale_down_count} "
+        f"hold={report.hold_count} "
+        f"drift_alerts={report.drift_alerts} "
+        f"spent=${report.usd_spent:.4f}/${report.usd_cap:.2f} "
+        f"stopped_early={report.stopped_early}"
+    )
 
 
 def main() -> None:
