@@ -179,7 +179,19 @@ with tracing on every move.
 
 ## The Copilot piece
 
-{{COPILOT_NOTE}}
+GitHub Copilot was the editor companion through the finish. I wired
+it into VS Code and let it autocomplete the boring parts. The egress
+guard wrapper, the test scaffolding for the auto-scaler, the doc
+comments on AutoScalerAgent.step, the boilerplate for parsing CLI args
+in vimana scale. Most were one or two keystrokes followed by accepting
+a suggestion that was already close to what I would have typed myself.
+Copilot Chat helped a few times when I forgot the exact shape of a
+token-budget-py call or wanted a quick second opinion on a method
+name. It was not the architect. The composition of agentleash +
+birddog + agenttrace was already in my head from shipping those
+libraries. What Copilot did was strip the typing friction so I could
+finish what I started in 2022 without losing momentum to the small
+stuff.
 
 ## What is not in this version
 
