@@ -2,7 +2,7 @@
 title: "How I finished a 4-year-old AI project using 30 libraries I wrote in the meantime"
 published: false
 description: "In 2022 I asked whether an AI agent could run its own cloud. I gave up. In 2026 I had the right libraries to actually finish it."
-tags: finishupathon, ai, agents, python
+tags: devchallenge, githubchallenge, ai, agents
 ---
 
 In August 2022 I wrote a one-paragraph research proposal called Vimana.
